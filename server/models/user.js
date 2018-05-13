@@ -4,7 +4,68 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 const { jwtTokenSign } = require('./../config/keys');
-let UserSchema = new mongoose.Schema({
+
+let Schema = mongoose.Schema;
+
+let PersonSchema = Schema({
+    cedula:  {
+        type: String,
+        required: true,
+        unique: true
+    },
+    nombre: {
+        type: String,
+        required: true,
+    },
+    direccion: {
+        type: String,
+        required: true,
+    },
+    telefono: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    fechaNacimiento:{
+        type: Date,
+        required: true
+    },
+    createdAt: {type: Date, default: Date.now, required:false},
+    updatedAt: {type: Date, default: Date.now, required:false},
+});
+PersonSchema.pre('save', function preSave(next){
+    let self = this;
+    self.updatedAt(Date.now());
+    next();
+});
+let RolSchema = Schema({
+    name:  {
+        type: String,
+        required: true,
+        unique: true
+    },
+    descripcion:  {
+        type: String,
+    },
+    modules: {
+        type: [Object],
+        required: false,
+    },
+    estatus: {
+        type: Boolean,
+        required: false,
+    },
+    createdAt: {type: Date, default: Date.now, required:false},
+    updatedAt: {type: Date, default: Date.now, required:false},
+});
+
+RolSchema.pre('save', function preSave(next){
+    let self = this;
+    self.updatedAt(Date.now());
+    next();
+});
+
+let UserSchema = new Schema({
     email: {
         type: String,
         required: true,
@@ -32,10 +93,17 @@ let UserSchema = new mongoose.Schema({
             required: true
         }
     }],
+    createdAt: {type: Date, default: Date.now, required:false},
+    updatedAt: {type: Date, default: Date.now, required:false},
+    person: {
+        type: Schema.Types.ObjectId, ref: 'Person'
+    },
+    rol: {
+        type: Schema.Types.ObjectId, ref: 'Rol'
+    },
 }, {
     usePushEach: true
 });
-
 UserSchema.methods.toJSON = function () {
     let user = this;
     let userObject = user.toObject();
@@ -55,7 +123,6 @@ UserSchema.methods.generateAuthToken = function () {
 
 UserSchema.methods.removeToken = function (token) {
     let user = this;
-
     return user.update({
         $pull: {
             tokens: { token: token }
@@ -101,7 +168,7 @@ UserSchema.statics.findByCredentials = function (email, password) {
 
 UserSchema.pre('save', function (next) {
     let user = this;
-
+    self.updatedAt(Date.now());
     if (user.isModified('password')) {
         bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
@@ -115,4 +182,6 @@ UserSchema.pre('save', function (next) {
 });
 
 const User = mongoose.model('User', UserSchema);
+const Person = mongoose.model('Person', PersonSchema);
+const Rol = mongoose.model('Rol', RolSchema);
 module.exports = { User };
