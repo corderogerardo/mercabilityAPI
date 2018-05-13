@@ -5,11 +5,11 @@ let ReputationSchema =  new mongoose.Schema({
         type: String,
         required: true,
     },
-    comocomprador: {
+    comoComprador: {
         type: Number,
         required: true,
     },
-    comovendedor: {
+    comoVendedor: {
         type: Number,
         required: true,
     },

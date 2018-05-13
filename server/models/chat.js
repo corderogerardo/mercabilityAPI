@@ -1,17 +1,21 @@
 const mongoose = require('mongoose');
 
-let NotificationSchema =  new mongoose.Schema({
+let ChatSchema =  new mongoose.Schema({
     titulo: {
         type: String,
         required: true,
         minlength: 1,
         trim: true
     },
-    descripcion: {
-        type: String,
+    users: {
+        type: [String],
         required: true,
         minlength: 1,
         trim: true
+    },
+    messages: {
+        type: [String],
+        required: false,
     },
     idTypeNotification: {
         type: String,
@@ -21,6 +25,10 @@ let NotificationSchema =  new mongoose.Schema({
         type: Boolean,
         required: false,
     },
+    idType:{
+        type: String,
+        required: true,
+    },
     createdAt: {type: Date, default: Date.now, required:false},
     updatedAt: {type: Date, default: Date.now, required:false},
     _creator: {
@@ -28,11 +36,11 @@ let NotificationSchema =  new mongoose.Schema({
         required: true
     }
 });
-NotificationSchema.pre('save', function preSave(next){
+ChatSchema.pre('save', function preSave(next){
     let self = this;
     self.updatedAt(Date.now());
     next();
 });
 
-const Notification = mongoose.model('Notification', NotificationSchema);
-module.exports = { Notification };
+const Chat = mongoose.model('Chat', ChatSchema);
+module.exports = { Chat };
