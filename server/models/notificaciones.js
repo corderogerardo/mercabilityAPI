@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 
-const CategorySchema = new mongoose.Schema({
-    nombre: {
+let NotificationSchema =  new mongoose.Schema({
+    titulo: {
         type: String,
         required: true,
         minlength: 1,
         trim: true
-    },
-    subcategoria: {
-        type: [Object],
-        required: false,
     },
     descripcion: {
         type: String,
@@ -17,9 +13,9 @@ const CategorySchema = new mongoose.Schema({
         minlength: 1,
         trim: true
     },
-    estatus: {
-        type: Boolean,
-        default: false
+    idTypeNotification: {
+        type: String,
+        required: false,
     },
     createdAt: {type: Date, default: Date.now, required:false},
     updatedAt: {type: Date, default: Date.now, required:false},
@@ -28,12 +24,11 @@ const CategorySchema = new mongoose.Schema({
         required: true
     }
 });
-
-CategorySchema.pre('save', function preSave(next){
+NotificationSchema.pre('save', function preSave(next){
     let self = this;
     self.updatedAt(Date.now());
     next();
 });
 
-const Category = mongoose.model('Category', CategorySchema);
-module.exports = { Category };
+const Notification = mongoose.model('Notification', NotificationSchema);
+module.exports = { Notification };
