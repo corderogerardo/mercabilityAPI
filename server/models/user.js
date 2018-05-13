@@ -3,7 +3,7 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
-
+const { jwtTokenSign } = require('./../config/keys');
 let UserSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -45,7 +45,7 @@ UserSchema.methods.toJSON = function () {
 UserSchema.methods.generateAuthToken = function () {
     let user = this;
     let access = 'auth';
-    let token = jwt.sign({ _id: user._id.toHexString(), access }, 'abc123').toString();
+    let token = jwt.sign({ _id: user._id.toHexString(), access }, jwtTokenSign ).toString();
     //user.tokens.push({ access, token }); use instead
     user.tokens = user.tokens.concat([{ access, token }]);
     return user.save().then(() => {
@@ -58,7 +58,7 @@ UserSchema.methods.removeToken = function (token) {
 
     return user.update({
         $pull: {
-            tokens: { token }
+            tokens: { token: token }
         }
     });
 };
@@ -67,7 +67,7 @@ UserSchema.statics.findByToken = function (token) {
     let User = this;
     let decoded;
     try {
-        decoded = jwt.verify(token, 'abc123');
+        decoded = jwt.verify(token, jwtTokenSign);
     } catch (e) {
         return Promise.reject();
     }

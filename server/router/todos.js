@@ -11,7 +11,7 @@ let { mongoose } = require('./../db/mongoose');
 let { Todo } = require('./../models/todo');
 let { User } = require('./../models/user');
 let { authenticate } = require('./../middleware/authenticate');
-todos.post('/todos', authenticate ,(req, res) => {
+todos.post('/todos', authenticate ,(req, res) => {s
     let todo = new Todo({
         text: req.body.text,
         _creator: req.user._id
