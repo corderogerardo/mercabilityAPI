@@ -20,22 +20,38 @@ users.post('/users', (req, res) => {
     bodyPerson.person.fechaNacimiento = fechaNacimiento;
     console.log(fechaNacimiento);
     let person = new Person(bodyPerson.person);
-    //let rol = new Rol(body);
 
     person.save().then((person) => {
         console.log("person " + person);
         let user = new User(body);
         user.person = person._id;
-        user.save().then(() => {
-            return user.generateAuthToken();
-        }).then((token) => {
-            res.header('x-auth', token).send(user);
-        }).catch((e) => {
-            res.status(400).send(e);
+        let userRol = Rol.findOne({ name: 'User' }).then((rol) => {
+            console.log("rolId 1 " + rol);
+            if(!rol){
+                let newRol = new Rol({ name: 'User', descripcion: 'Rol for users' });
+                newRol.save().then((rol) => {
+                    console.log("rolId 3 " + rol._id);
+                    user.rol = rol._id;
+                    user.save().then(() => {
+                        return user.generateAuthToken();
+                    }).then((token) => {
+                        res.header('x-auth', token).send(user);
+                    }).catch((e) => {
+                        res.status(400).send(e);
+                    })
+                });
+            }
+            user.rol = rol._id;
+            user.save().then(() => {
+                return user.generateAuthToken();
+            }).then((token) => {
+
+                res.header('x-auth', token).send(user);
+            }).catch((e) => {
+                res.status(400).send(e);
+            })
         })
     });
-
-
 });
 
 users.get('/users/me', authenticate, (req, res) => {
