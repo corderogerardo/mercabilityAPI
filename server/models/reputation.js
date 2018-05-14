@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
-let ReputationSchema =  new mongoose.Schema({
+let ReputationSchema =  new Schema({
     titulo: {
         type: String,
         required: true,
@@ -14,7 +15,7 @@ let ReputationSchema =  new mongoose.Schema({
         required: true,
     },
     comments: {
-        type: [String],
+        type: [Object],
         required: false,
     },
     estatus: {

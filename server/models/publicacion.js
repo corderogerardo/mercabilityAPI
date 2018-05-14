@@ -1,6 +1,41 @@
 const mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
-let PublicationSchema =  new mongoose.Schema({
+let ImageSchema = Schema({
+    estatus:  {
+        type: Boolean,
+    },
+    name: {
+        type: String,
+        required: false,
+    },
+    url: {
+        type: String,
+        required: true,
+    },
+    createdAt: {type: Date, default: Date.now, required:false},
+    updatedAt: {type: Date, default: Date.now, required:false},
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    }
+});
+
+ImageSchema.pre('save', function preSave(next){
+    let self = this;
+    self.updatedAt(Date.now());
+    next();
+});
+// Getter
+ImageSchema.path('total').get(function(num) {
+    return (num / 100).toFixed(2);
+});
+// Setter
+ImageSchema.path('total').set(function(num) {
+    return num * 100;
+});
+
+let PublicationSchema =  new Schema({
     titulo: {
         type: String,
         required: true,
@@ -14,7 +49,7 @@ let PublicationSchema =  new mongoose.Schema({
         trim: true
     },
     idProducto:{
-        type: String,
+        type: Schema.Types.ObjectId, ref: 'Product',
         required: false,
     },
     cantidad:{
@@ -26,7 +61,7 @@ let PublicationSchema =  new mongoose.Schema({
         required: true
     },
     images:{
-        type: [String],
+        type: [{ type: Schema.Types.ObjectId, ref: 'Image'}],
         required: false,
     },
     idFacturacion:{
@@ -61,5 +96,6 @@ PublicationSchema.pre('save', function preSave(next){
     next();
 });
 
+const Image = mongoose.model('Image', ImageSchema);
 const Publication = mongoose.model('Publication', PublicationSchema);
 module.exports = { Publication };

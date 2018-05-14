@@ -1,24 +1,45 @@
 const mongoose = require('mongoose');
+let Schema = mongoose.Schema;
+
+let MessageSchema = Schema({
+    titulo:  {
+        type: String,
+        required: true,
+        unique: true
+    },
+    mensaje: {
+        type: String,
+        required: true,
+    },
+    idChat:{
+        type: String,
+        required: true,
+    },
+    createdAt: {type: Date, default: Date.now, required:false},
+    updatedAt: {type: Date, default: Date.now, required:false},
+    _idUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    }
+});
+
+MessageSchema.pre('save', function preSave(next){
+    let self = this;
+    self.updatedAt(Date.now());
+    next();
+});
 
 let ChatSchema =  new mongoose.Schema({
     titulo: {
         type: String,
         required: true,
-        minlength: 1,
-        trim: true
     },
     users: {
-        type: [String],
+        type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         required: true,
-        minlength: 1,
-        trim: true
     },
     messages: {
-        type: [String],
-        required: false,
-    },
-    idTypeNotification: {
-        type: String,
+        type: [{ type: Schema.Types.ObjectId, ref: 'Mensaje' }],
         required: false,
     },
     estatus: {
@@ -43,4 +64,5 @@ ChatSchema.pre('save', function preSave(next){
 });
 
 const Chat = mongoose.model('Chat', ChatSchema);
-module.exports = { Chat };
+const Mensaje = mongoose.model('Mensaje', MessageSchema);
+module.exports = { Mensaje };

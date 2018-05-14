@@ -35,7 +35,7 @@ let PersonSchema = Schema({
 });
 PersonSchema.pre('save', function preSave(next){
     let self = this;
-    self.updatedAt(Date.now());
+    self.updatedAt = Date.now();
     next();
 });
 let RolSchema = Schema({
@@ -46,6 +46,7 @@ let RolSchema = Schema({
     },
     descripcion:  {
         type: String,
+        required: false
     },
     modules: {
         type: [Object],
@@ -61,7 +62,7 @@ let RolSchema = Schema({
 
 RolSchema.pre('save', function preSave(next){
     let self = this;
-    self.updatedAt(Date.now());
+    self.updatedAt = Date.now();
     next();
 });
 
@@ -98,8 +99,13 @@ let UserSchema = new Schema({
     person: {
         type: Schema.Types.ObjectId, ref: 'Person'
     },
+    reputation: {
+        type: Schema.Types.ObjectId, ref: 'Reputation',
+        required: false
+    },
     rol: {
-        type: Schema.Types.ObjectId, ref: 'Rol'
+        type: Schema.Types.ObjectId, ref: 'Rol',
+        required: false
     },
 }, {
     usePushEach: true
@@ -168,7 +174,7 @@ UserSchema.statics.findByCredentials = function (email, password) {
 
 UserSchema.pre('save', function (next) {
     let user = this;
-    self.updatedAt(Date.now());
+    user.updatedAt = Date.now();
     if (user.isModified('password')) {
         bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
@@ -184,4 +190,4 @@ UserSchema.pre('save', function (next) {
 const User = mongoose.model('User', UserSchema);
 const Person = mongoose.model('Person', PersonSchema);
 const Rol = mongoose.model('Rol', RolSchema);
-module.exports = { User };
+module.exports = { User, Rol, Person };
