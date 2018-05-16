@@ -51,6 +51,8 @@ users.post('/users', (req, res) => {
                 res.status(400).send(e);
             })
         })
+    }).catch((e) => {
+        res.status(400).send(e);
     });
 });
 
