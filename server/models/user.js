@@ -3,7 +3,7 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
-const { jwtTokenSign } = require('./../config/keys');
+const jwtTokenSign = process.env.JWT_SECRET || require('./../config/keys').jwtTokenSign;
 
 let Schema = mongoose.Schema;
 
