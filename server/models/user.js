@@ -97,7 +97,8 @@ let UserSchema = new Schema({
     createdAt: {type: Date, default: Date.now, required:false},
     updatedAt: {type: Date, default: Date.now, required:false},
     person: {
-        type: Schema.Types.ObjectId, ref: 'Person'
+        type: Schema.Types.ObjectId, ref: 'Person',
+        required: true
     },
     reputation: {
         type: Schema.Types.ObjectId, ref: 'Reputation',
@@ -105,7 +106,7 @@ let UserSchema = new Schema({
     },
     rol: {
         type: Schema.Types.ObjectId, ref: 'Rol',
-        required: false
+        required: true
     },
 }, {
     usePushEach: true

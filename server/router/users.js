@@ -11,7 +11,51 @@ let { Todo } = require('./../models/todo');
 let { User, Rol, Person } = require('./../models/user');
 let { authenticate } = require('./../middleware/authenticate');
 // POST /users
-users.post('/users', (req, res) => {
+// users.post('/users', (req, res) => {
+//     let body = _.pick(req.body, ['email', 'password']);
+//     let bodyPerson = _.pick(req.body, ['person']);
+//     console.log(body);
+//     console.log(bodyPerson);
+//     let fechaNacimiento = new Date(bodyPerson.person.fechaNacimiento);
+//     bodyPerson.person.fechaNacimiento = fechaNacimiento;
+//     console.log(fechaNacimiento);
+//     let person = new Person(bodyPerson.person);
+//
+//     person.save().then((person) => {
+//         console.log("person " + person);
+//         let user = new User(body);
+//         user.person = person._id;
+//         let userRol = Rol.findOne({ name: 'User' }).then((rol) => {
+//             console.log("rolId 1 " + rol);
+//             if(!rol){
+//                 let newRol = new Rol({ name: 'User', descripcion: 'Rol for users' });
+//                 newRol.save().then((rol) => {
+//                     console.log("rolId 3 " + rol._id);
+//                     user.rol = rol._id;
+//                     user.save().then(() => {
+//                         return user.generateAuthToken();
+//                     }).then((token) => {
+//                         res.header('x-auth', token).send(user);
+//                     }).catch((e) => {
+//                         res.status(400).send(e);
+//                     })
+//                 });
+//             }
+//             user.rol = rol._id;
+//             user.save().then(() => {
+//                 return user.generateAuthToken();
+//             }).then((token) => {
+//
+//                 res.header('x-auth', token).send(user);
+//             }).catch((e) => {
+//                 res.status(400).send(e);
+//             })
+//         })
+//     }).catch((e) => {
+//         res.status(400).send(e);
+//     });
+// });
+users.post('/users', (req, res, next) => {
     let body = _.pick(req.body, ['email', 'password']);
     let bodyPerson = _.pick(req.body, ['person']);
     console.log(body);
@@ -20,40 +64,138 @@ users.post('/users', (req, res) => {
     bodyPerson.person.fechaNacimiento = fechaNacimiento;
     console.log(fechaNacimiento);
     let person = new Person(bodyPerson.person);
-
-    person.save().then((person) => {
-        console.log("person " + person);
-        let user = new User(body);
-        user.person = person._id;
-        let userRol = Rol.findOne({ name: 'User' }).then((rol) => {
-            console.log("rolId 1 " + rol);
-            if(!rol){
+    // 1. Find Person
+    let foundPerson = [];
+    let foundPersonState = false;
+    let findPerson = async function(){
+       try {
+           await Person.find({cedula:bodyPerson.person.cedula}).then((p) => {
+               if(p.length > 0 && p[0]._id){
+               console.log("p1 " + p[0]._id);
+                   foundPerson = [...p];
+                   foundPersonState = true;
+               }
+           }).catch(function (e) {
+               console.log("error findPerson " + e);
+           })
+       }catch (e) {
+           console.log("error findPerson " + e);
+       }
+    };
+    // 2. if !Person, save person
+    let savePerson = async function(){
+        if(!foundPersonState){
+          try {
+              await person.save().then((p) => {
+                console.log("p2 " + p);
+                foundPerson = p;
+              })
+          }catch (e) {
+              console.log("error savePerson " + e);
+              res.status(400).send(e);
+          }
+      }
+    };
+    // 3. Find Rol
+    let foundRol = [];
+    let foundRolState = false;
+    let findRol = async function(){
+       try {
+           await Rol.find({name:'User'}).then((r) => {
+               console.log("r " + r.length);
+              if(r.length > 0 && r[0]._id){
+                  foundRol = [...r];
+                  foundRolState = true;
+                  console.log("rolUser1 " + r[0]._id);
+              }
+           }).catch((e) => {
+               console.log("findRol error " + e);
+           });
+       }catch (e) {
+           console.log("findRol error " + e);
+           res.status(400).send(e);
+       }
+    };
+    // 4. if !Rol, save rol
+    let saveRol = async function(){
+        try {
+            if(!foundRolState){
                 let newRol = new Rol({ name: 'User', descripcion: 'Rol for users' });
-                newRol.save().then((rol) => {
-                    console.log("rolId 3 " + rol._id);
-                    user.rol = rol._id;
-                    user.save().then(() => {
-                        return user.generateAuthToken();
-                    }).then((token) => {
-                        res.header('x-auth', token).send(user);
-                    }).catch((e) => {
-                        res.status(400).send(e);
-                    })
+                await newRol.save().then((rolx) => {
+                    console.log("newRol 3 ");
+                    foundRol = rolx;
+                }).catch((e) => {
+                    console.log("saveRol error1 " + e);
                 });
+            }else{
+                console.log("saveRol else ");
             }
-            user.rol = rol._id;
-            user.save().then(() => {
-                return user.generateAuthToken();
-            }).then((token) => {
+        }catch (e) {
+            console.log("saveRol error1 " + e);
+            res.status(400).send(e);
+        }
+    };
+    // 5. Find user
+    let foundUser = [];
+    let foundUserState = false;
+    let findUser = async function(){
+      try {
+          await User.find({email:body.email}).then((userx) => {
+              console.log("userx " + userx.length);
+              if(userx.length > 0 && userx[0]._id){
+                  foundUser = [...userx];
+                  foundUserState = true;
+              }
+          }).catch((e) => {
+              console.log("findUser1 ", e);
+          });
+      }catch (e) {
+          console.log("findUser2 ", e);
+      }
+    };
+    // 6. if !User, save user
+    let saveUser = async function(){
+        if(!foundUserState){
+            try {
+                let user = new User(body);
+                console.log("foundPerson " + foundPerson);
+                console.log("foundRol " + foundRol);
+                const personId = (foundPerson[0]) ? foundPerson[0]._id : foundPerson._id;
+                const rolId = (foundRol[0]) ? foundRol[0]._id : foundRol._id;
+                user.person = personId;
+                user.rol = rolId;
+                console.log("personId " + personId);
+                console.log("rolId " + rolId);
+                console.log("saveUser " + user);
+                await user.save().then(() => {
+                    return user.generateAuthToken();
+                }).then((token) => {
+                    res.header('x-auth', token).send(user);
+                }).catch((e) => {
+                    console.log("saveUser1 ", e);
+                })
+            }catch (e) {
+                console.log("saveUser2 ", e);
+            }
+        }else{
+            res.status(409).send("User already exists.");
+        }
+    };
 
-                res.header('x-auth', token).send(user);
-            }).catch((e) => {
-                res.status(400).send(e);
-            })
-        })
-    }).catch((e) => {
-        res.status(400).send(e);
-    });
+    // Main execution
+    (async function f() {
+      try {
+          await findPerson();
+          await savePerson();
+          await findRol();
+          await saveRol();
+          await findUser();
+          await saveUser();
+      }catch (e) {
+          res.status(400).send(e);
+      }
+    })();
+
 });
 
 users.get('/users/me', authenticate, (req, res) => {
