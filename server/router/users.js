@@ -10,51 +10,6 @@ let { mongoose } = require('./../db/mongoose');
 let { Todo } = require('./../models/todo');
 let { User, Rol, Person } = require('./../models/user');
 let { authenticate } = require('./../middleware/authenticate');
-// POST /users
-// users.post('/users', (req, res) => {
-//     let body = _.pick(req.body, ['email', 'password']);
-//     let bodyPerson = _.pick(req.body, ['person']);
-//     console.log(body);
-//     console.log(bodyPerson);
-//     let fechaNacimiento = new Date(bodyPerson.person.fechaNacimiento);
-//     bodyPerson.person.fechaNacimiento = fechaNacimiento;
-//     console.log(fechaNacimiento);
-//     let person = new Person(bodyPerson.person);
-//
-//     person.save().then((person) => {
-//         console.log("person " + person);
-//         let user = new User(body);
-//         user.person = person._id;
-//         let userRol = Rol.findOne({ name: 'User' }).then((rol) => {
-//             console.log("rolId 1 " + rol);
-//             if(!rol){
-//                 let newRol = new Rol({ name: 'User', descripcion: 'Rol for users' });
-//                 newRol.save().then((rol) => {
-//                     console.log("rolId 3 " + rol._id);
-//                     user.rol = rol._id;
-//                     user.save().then(() => {
-//                         return user.generateAuthToken();
-//                     }).then((token) => {
-//                         res.header('x-auth', token).send(user);
-//                     }).catch((e) => {
-//                         res.status(400).send(e);
-//                     })
-//                 });
-//             }
-//             user.rol = rol._id;
-//             user.save().then(() => {
-//                 return user.generateAuthToken();
-//             }).then((token) => {
-//
-//                 res.header('x-auth', token).send(user);
-//             }).catch((e) => {
-//                 res.status(400).send(e);
-//             })
-//         })
-//     }).catch((e) => {
-//         res.status(400).send(e);
-//     });
-// });
 users.post('/users', (req, res, next) => {
     let body = _.pick(req.body, ['email', 'password']);
     let bodyPerson = _.pick(req.body, ['person']);

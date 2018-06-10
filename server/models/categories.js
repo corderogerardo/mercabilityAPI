@@ -1,6 +1,20 @@
 const mongoose = require('mongoose');
 
-const CategorySchema = new mongoose.Schema({
+let Schema = mongoose.Schema;
+
+let SubCategorySchema = new Schema({
+    nombre:  {
+        type: String,
+        required: false,
+        unique: true
+    },
+    descripcion:  {
+        type: String,
+        required: false
+    }
+});
+
+let CategorySchema = new Schema({
     nombre: {
         type: String,
         required: true,
@@ -8,8 +22,8 @@ const CategorySchema = new mongoose.Schema({
         trim: true
     },
     subcategoria: {
-        type: [Object],
-        required: false,
+        type: Schema.Types.ObjectId, ref: 'SubCategory',
+        required: false
     },
     descripcion: {
         type: String,
@@ -31,9 +45,10 @@ const CategorySchema = new mongoose.Schema({
 
 CategorySchema.pre('save', function preSave(next){
     let self = this;
-    self.updatedAt(Date.now());
+    self.updatedAt = Date.now();
     next();
 });
 
+const SubCategory = mongoose.model('SubCategory', SubCategorySchema);
 const Category = mongoose.model('Category', CategorySchema);
-module.exports = { Category };
+module.exports = { Category, SubCategory };
