@@ -110,7 +110,7 @@ users.post('/users', (req, res, next) => {
     };
     // 6. if !User, save user
     let saveUser = async function(){
-        if(!foundUserState){
+        if(!foundUserState && !foundPersonState){
             try {
                 let user = new User(body);
                 console.log("foundPerson " + foundPerson);
@@ -133,6 +133,9 @@ users.post('/users', (req, res, next) => {
                 console.log("saveUser2 ", e);
             }
         }else{
+            if(foundPersonState){
+                res.status(409).send("CI already exists.");
+            }
             res.status(409).send("User already exists.");
         }
     };

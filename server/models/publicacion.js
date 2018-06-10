@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-let ImageSchema = Schema({
+let ImageSchema = new Schema({
     estatus:  {
         type: Boolean,
     },
@@ -65,10 +65,8 @@ let PublicationSchema =  new Schema({
         required: false,
     },
     idFacturacion:{
-        type: String,
-        required: true,
-        minlength: 1,
-        trim: true
+        type: Schema.Types.ObjectId, ref: 'Ordenpago',
+        required: false,
     },
     estatus: {
         type: Boolean,
