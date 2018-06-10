@@ -1,0 +1,30 @@
+Pasos desde la Consola o CMD.
+
+Paso 1: Clonar Repositorio MercabilityAPI
+git clone https://github.com/corderogerardo/mercabilityAPI.git
+
+Paso 2. Checkear Remotes
+git remote -v
+
+Resultado:
+origin	https://github.com/corderogerardo/mercabilityAPI.git (fetch)
+origin	https://github.com/corderogerardo/mercabilityAPI.git (push)
+
+Paso 3. Agregar Heroku Git URL con el comando
+git remote add heroku https://git.heroku.com/mercability.git
+
+Paso 4. Ir a Paso 2. Volver a Checkear remotes
+git remote -v
+
+Resultado:
+heroku	https://git.heroku.com/mercability.git (fetch)
+heroku	https://git.heroku.com/mercability.git (push)
+origin	https://github.com/corderogerardo/mercabilityAPI.git (fetch)
+origin	https://github.com/corderogerardo/mercabilityAPI.git (push)
+
+Paso 5. Una vez realizado una actualizacion, o cambios. Actualizar repositorio y subir al servidor en Heroku.
+git commit -m "Update for user api"
+git push origin master
+
+Para Actualizar el servidor
+git push heroku master
