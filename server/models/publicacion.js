@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 let Schema = mongoose.Schema;
 
 let ImageSchema = new Schema({
@@ -23,7 +24,7 @@ let ImageSchema = new Schema({
 
 ImageSchema.pre('save', function preSave(next){
     let self = this;
-    self.updatedAt(Date.now());
+    self.updatedAt = Date.now();
     next();
 });
 // Getter
@@ -90,10 +91,13 @@ PublicationSchema.path('precio').set(function(num) {
 });
 PublicationSchema.pre('save', function preSave(next){
     let self = this;
-    self.updatedAt(Date.now());
+    self.updatedAt = Date.now();
+    let now = Date.now();
+    self.duracion = moment(now).add(15, 'days');
+    console.log("publications add 15 days to actual date " + self.duracion);
     next();
 });
 
 const Image = mongoose.model('Image', ImageSchema);
 const Publication = mongoose.model('Publication', PublicationSchema);
-module.exports = { Publication };
+module.exports = { Publication, Image };

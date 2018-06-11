@@ -7,7 +7,7 @@ const jwtTokenSign = process.env.JWT_SECRET || require('./../config/keys').jwtTo
 
 let Schema = mongoose.Schema;
 
-let PersonSchema = Schema({
+let PersonSchema = new Schema({
     cedula:  {
         type: String,
         required: true,
@@ -38,7 +38,7 @@ PersonSchema.pre('save', function preSave(next){
     self.updatedAt = Date.now();
     next();
 });
-let RolSchema = Schema({
+let RolSchema = new Schema({
     name:  {
         type: String,
         required: true,

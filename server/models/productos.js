@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 let Schema = mongoose.Schema;
 
-let ProductSchema =  new Schema({
+let ProductSchema = new Schema({
     nombre: {
         type: String,
         required: true,
@@ -10,8 +10,8 @@ let ProductSchema =  new Schema({
         trim: true
     },
     idCategory: {
-        type: String,
-        required: true,
+        type: Schema.Types.ObjectId, ref: 'Category',
+        required: false,
     },
     descripcion: {
         type: String,
@@ -23,16 +23,18 @@ let ProductSchema =  new Schema({
         type: Boolean,
         required: false,
     },
-    createdAt: {type: Date, default: Date.now, required:false},
-    updatedAt: {type: Date, default: Date.now, required:false},
+    createdAt: { type: Date, default: Date.now, required: false },
+    updatedAt: { type: Date, default: Date.now, required: false },
     _creator: {
         type: mongoose.Schema.Types.ObjectId,
         required: true
     }
 });
-ProductSchema.pre('save', function preSave(next){
+
+ProductSchema.pre('save', function preSave(next) {
     let self = this;
-    self.updatedAt(Date.now());
+    self.updatedAt = Date.now();
+    self.estatus = true;
     next();
 });
 

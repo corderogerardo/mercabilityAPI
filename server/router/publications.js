@@ -1,5 +1,5 @@
 const express = require('express');
-let categories = express.Router();
+let publications = express.Router();
 const _ = require('lodash');
 const { ObjectID } = require('mongodb');
 
@@ -8,14 +8,36 @@ const { ObjectID } = require('mongodb');
 
 // My modules exported
 let { mongoose } = require('./../db/mongoose');
-let { Category, SubCategory } = require('./../models/categories');
+let { Category } = require('./../models/categories');
+let { Publication, Image } = require('./../models/publicacion');
+let { Product } = require('./../models/productos');
 let { User } = require('./../models/user');
 let { authenticate } = require('./../middleware/authenticate');
-categories.post('/categories', authenticate, (req, res) => {
+publications.post('/publications', authenticate, (req, res) => {
     let body = _.pick(req.body, ['nombre', 'descripcion']);
-    let subcategoria = _.pick(req.body.subcategoria, ['nombre', 'descripcion']);
+    let products = _.pick(req.body.products, ['nombre', 'descripcion','categoria']);
+    let image = _.pick(req.body.image, ['nombre', 'url']);
     console.log(body);
-    console.log(subcategoria);
+    console.log(products);
+    console.log(image);
+
+    // Paso 1: Buscar producto
+
+    // Paso 2: if !producto, guardar producto
+
+    // Paso 3: Buscar imagen
+
+    // Paso 4: if !Imagen, guardar imagen
+
+    // Paso 5: Buscar publicacion
+
+    // Paso 6: if !publicacion, save publication
+
+    // Paso 7: Main process execution
+
+
+
+
     let subCateg = new SubCategory({
         ...subcategoria
     });
@@ -114,8 +136,9 @@ categories.post('/categories', authenticate, (req, res) => {
 
 });
 
-categories.get('/categories', authenticate, (req, res) => {
+publications.get('/publications', authenticate, (req, res) => {
     Category.find({
+        _creator: req.user._id
     }).then((categs) => {
         res.send({ categs });
     }, (e) => {
@@ -123,7 +146,7 @@ categories.get('/categories', authenticate, (req, res) => {
     })
 });
 
-categories.get('/categories/:id', authenticate, (req, res) => {
+publications.get('/publications/:id', authenticate, (req, res) => {
     let id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -132,6 +155,7 @@ categories.get('/categories/:id', authenticate, (req, res) => {
 
     Category.findOne({
         _id: id,
+        _creator: req.user._id
     }).then((categ) => {
         if (!categ) {
             return res.status(404).send();
@@ -143,7 +167,7 @@ categories.get('/categories/:id', authenticate, (req, res) => {
     })
 });
 
-categories.delete('/categories/:id', authenticate, (req, res) => {
+publications.delete('/publications/:id', authenticate, (req, res) => {
     let id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -164,7 +188,7 @@ categories.delete('/categories/:id', authenticate, (req, res) => {
 
 });
 
-categories.patch('/categories/:id', authenticate, (req, res) => {
+publications.patch('/publications/:id', authenticate, (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'descripcion']);
     let subcategoria = _.pick(req.body.subcategoria, ['nombre', 'descripcion']);
@@ -247,4 +271,4 @@ categories.patch('/categories/:id', authenticate, (req, res) => {
 
 });
 
-module.exports = { categories };
+module.exports = { publications };
