@@ -28,7 +28,7 @@ let PersonSchema = new Schema({
     },
     fechaNacimiento:{
         type: Date,
-        required: true
+        required: false
     },
     createdAt: {type: Date, default: Date.now, required:false},
     updatedAt: {type: Date, default: Date.now, required:false},
@@ -82,7 +82,7 @@ let UserSchema = new Schema({
     password: {
         type: String,
         require: true,
-        minlength: 8
+        minlength: 4
     },
     tokens: [{
         access: {

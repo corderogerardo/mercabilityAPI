@@ -13,9 +13,9 @@ let { authenticate } = require('./../middleware/authenticate');
 users.post('/users', (req, res, next) => {
     let body = _.pick(req.body, ['email', 'password']);
     let bodyPerson = _.pick(req.body, ['person']);
-    console.log(body);
-    console.log(bodyPerson);
-    let fechaNacimiento = new Date(bodyPerson.person.fechaNacimiento);
+    console.log("user ",body);
+    console.log("person ",bodyPerson);
+    let fechaNacimiento = (bodyPerson.person.fechaNacimiento) ? new Date(bodyPerson.person.fechaNacimiento) : null;
     bodyPerson.person.fechaNacimiento = fechaNacimiento;
     console.log(fechaNacimiento);
     let person = new Person(bodyPerson.person);
