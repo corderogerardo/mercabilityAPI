@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 let { todos } = require('./router/todos');
 let { users } = require('./router/users');
 let { categories } = require('./router/categories');
+let { publications } = require('./router/publications');
 // Express REST API Server Instance
 let app = express();
 const port = process.env.PORT;
@@ -21,6 +22,7 @@ app.use(bodyParser.json());
 app.use(users);
 app.use(todos);
 app.use(categories);
+app.use(publications);
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);

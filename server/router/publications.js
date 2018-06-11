@@ -14,75 +14,51 @@ let { Product } = require('./../models/productos');
 let { User } = require('./../models/user');
 let { authenticate } = require('./../middleware/authenticate');
 publications.post('/publications', authenticate, (req, res) => {
-    let body = _.pick(req.body, ['nombre', 'descripcion']);
-    let products = _.pick(req.body.products, ['nombre', 'descripcion','categoria']);
-    let image = _.pick(req.body.image, ['nombre', 'url']);
+    let body = _.pick(req.body, ['titulo', 'descripcion', 'cantidad','precio']);
+    let products = _.pick(req.body.producto, ['nombre', 'descripcion','categoria']);
+    let images = _.pick(req.body.image, ['nombre', 'url']);
     console.log(body);
     console.log(products);
-    console.log(image);
+    console.log(images);
 
-    // Paso 1: Buscar producto
-
-    // Paso 2: if !producto, guardar producto
-
-    // Paso 3: Buscar imagen
-
-    // Paso 4: if !Imagen, guardar imagen
-
-    // Paso 5: Buscar publicacion
-
-    // Paso 6: if !publicacion, save publication
-
-    // Paso 7: Main process execution
-
-
-
-
-    let subCateg = new SubCategory({
-        ...subcategoria
+    // Instances of the data comming from Mobile App
+    let product = new Product({
+        ...products
     });
-    let categ = new Category({
+
+    let newImage = new Image({
+        ...images
+    });
+
+    let publication = new Publication({
         ...body
     });
-    //1. Find Subcategory
-    let foundSubcategory = [];
-    let foundSubcategoryState = false;
-    let findSubCaterogy = async function () {
+
+    // Paso 1: Buscar producto
+    let foundProduct = [];
+    let foundProductState = false;
+    let findProduct = async function () {
         try {
-            await SubCategory.find({ nombre: subcategoria.nombre }).then((p) => {
+            await Product.find({ nombre: products.nombre }).then((p) => {
                 if (p.length > 0 && p[0]._id) {
-                    console.log("findSubCaterogy " + p[0]._id);
-                    foundSubcategory = [...p];
-                    foundSubcategoryState = true;
+                    console.log("findProduct " + p[0]._id);
+                    foundProduct = [...p];
+                    foundProductState = true;
                 }
             }).catch(function (e) {
-                console.log("error findSubcategory " + e);
+                console.log("error findProduct " + e);
             })
         } catch (e) {
-            console.log("error findSubcategory " + e);
+            console.log("error findProduct " + e);
         }
     };
 
-    //2. if !Subcategory, save subcategory
-    let saveSubcategory = async function () {
-        if (!foundSubcategoryState) {
-            try {
-                await subCateg.save().then((p) => {
-                    console.log("saveSubcategory " + p);
-                    foundSubcategory = p;
-                })
-            } catch (e) {
-                console.log("error saveSubCategory " + e);
-                res.status(400).send(e);
-            }
-        }
-    };
-    //3. Find Category
+    // Paso 2: if !producto, guardar producto
     let foundCategory = [];
     let foundCategoryState = false;
     let findCategory = async function () {
         try {
-            await Category.find({ nombre: body.nombre }).then((cat) => {
+            await Category.find({ nombre: products.categoria }).then((cat) => {
                 if (cat.length > 0 && cat[0]._id) {
                     console.log("findCaterogy " + cat[0]._id);
                     foundCategory = [...cat];
@@ -97,38 +73,128 @@ publications.post('/publications', authenticate, (req, res) => {
         }
     };
 
-    //4. if !Category, save category
-    let saveCategory = async function () {
-        if (!foundCategoryState) {
+    let saveProduct = async function () {
+        if (!foundProductState && foundCategoryState) {
             try {
-                const subCategoryId = (foundSubcategory[0]) ? foundSubcategory[0]._id : foundSubcategory._id;
-                categ.subcategoria = subCategoryId;
-                categ.estatus = true;
-                categ._creator = req.user._id;
-                await categ.save().then((p) => {
-                    console.log("saveCategory " + p);
-                    foundCategory = p;
-                    //res.send({ p });
-                    res.status(200).send({ p });
-                }).catch((e) => {
-                    console.log("saveCategory ", e);
+                product.idCategory = (foundCategory[0]) ? foundCategory[0]._id : foundCategory._id;
+                product._creator = req.user._id;
+                await product.save().then((p) => {
+                    console.log("saveProduct " + p);
+                    foundProduct = p;
                 })
             } catch (e) {
-                console.log("error saveCategory " + e);
+                console.log("error saveProduct " + e);
                 res.status(400).send(e);
             }
-        } else {
-            res.status(400).send('Category already exists.');
+        }else{
+            if(!foundCategoryState){
+                res.status(404).send("Category doesn't exist.");
+            }
         }
     };
+
+    // Paso 3: Buscar imagen
+    let foundImage = [];
+    let foundImageState = false;
+    let findImage = async function () {
+        try {
+            await Image.find({ url: images.url }).then((p) => {
+                if (p.length > 0 && p[0]._id) {
+                    console.log("findImage " + p[0]._id);
+                    foundImage = [...p];
+                    foundImageState = true;
+                }
+            }).catch(function (e) {
+                console.log("error findProduct " + e);
+            })
+        } catch (e) {
+            console.log("error findProduct " + e);
+        }
+    };
+
+
+    // Paso 4: if !Imagen, guardar imagen
+    let saveImage = async function () {
+        if (!foundImageState && images.url) {
+            try {
+                newImage._creator = req.user._id;
+                await newImage.save().then((p) => {
+                    console.log("saveImage " + p);
+                    foundImage = p;
+                })
+            } catch (e) {
+                console.log("error saveImage " + e);
+                res.status(400).send(e);
+            }
+        }else{
+            if(foundImageState){
+                console.log("Image already exists.");
+                //res.status(404).send("Image already exists.");
+            }
+            console.log("No image url.");
+            //res.status(404).send("No image url.");
+        }
+    };
+
+    // Paso 5: Buscar publicacion
+    let foundPublication = [];
+    let foundPublicationState = false;
+    let findPublication = async function () {
+        try {
+            await Publication.find({ titulo: body.titulo }).then((p) => {
+                if (p.length > 0 && p[0]._id) {
+                    console.log("findImage " + p[0]._id);
+                    foundPublication = [...p];
+                    foundPublicationState = true;
+                }
+            }).catch(function (e) {
+                console.log("error findPublication " + e);
+            })
+        } catch (e) {
+            console.log("error findPublication " + e);
+        }
+    };
+
+    // Paso 6: if !publicacion, save publication
+    let savePublication = async function () {
+        if (!foundPublicationState && foundImage && foundProduct ) {
+            try {
+                const idProducto = (foundProduct[0]) ? foundProduct[0]._id : foundProduct._id;
+                const images = (foundImage[0]) ? foundImage[0]._id : foundImage._id;
+                publication.idProducto = idProducto;
+                if(images){
+                    publication.images = images
+                }
+                publication._creator = req.user._id;
+                await publication.save().then((p) => {
+                    console.log("savePublication " + p);
+                    foundPublication = p;
+                    res.status(200).send({ p });
+                })
+            } catch (e) {
+                console.log("error savePublication " + e);
+                res.status(400).send(e);
+            }
+        }else{
+            if(foundImageState){
+                res.status(404).send("Publication already exists.");
+            }
+            res.status(404).send("Publication already exists.");
+        }
+    };
+
+    // Paso 7: Main process execution
 
     // Main execution
     (async function f() {
         try {
-            await findSubCaterogy();
-            await saveSubcategory();
+            await findProduct();
             await findCategory();
-            await saveCategory();
+            await saveProduct();
+            await findImage();
+            await saveImage();
+            await findPublication();
+            await savePublication();
         } catch (e) {
             res.status(400).send(e);
         }
@@ -137,7 +203,7 @@ publications.post('/publications', authenticate, (req, res) => {
 });
 
 publications.get('/publications', authenticate, (req, res) => {
-    Category.find({
+    Publication.find({
         _creator: req.user._id
     }).then((categs) => {
         res.send({ categs });
@@ -153,15 +219,15 @@ publications.get('/publications/:id', authenticate, (req, res) => {
         return res.status(404).send();
     }
 
-    Category.findOne({
+    Publication.findOne({
         _id: id,
         _creator: req.user._id
-    }).then((categ) => {
-        if (!categ) {
+    }).then((pub) => {
+        if (!pub) {
             return res.status(404).send();
         }
 
-        res.send({ categ });
+        res.send({ pub });
     }).catch((e) => {
         res.status(400).send();
     })
@@ -174,14 +240,14 @@ publications.delete('/publications/:id', authenticate, (req, res) => {
         return res.status(404).send();
     }
 
-    Category.findOneAndRemove({
+    Publication.findOneAndRemove({
         _id: id,
         _creator: req.user._id
-    }).then((categ) => {
-        if (!categ) {
+    }).then((pub) => {
+        if (!pub) {
             return res.status(404).send();
         }
-        res.send({ categ });
+        res.send({ pub });
     }).catch((e) => {
         res.status(400).send();
     })
@@ -206,7 +272,7 @@ publications.patch('/publications/:id', authenticate, (req, res) => {
     let subCategoryID = '';
     let findCategory = async function () {
         try {
-            await Category.find({ _id: id }).then((cat) => {
+            await Publication.find({ _id: id }).then((cat) => {
                 if (cat.length > 0 && cat[0]._id) {
                     console.log("findCaterogy " + cat[0]._id);
                     foundCategory = [...cat];

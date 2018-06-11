@@ -12,7 +12,7 @@ let ImageSchema = new Schema({
     },
     url: {
         type: String,
-        required: true,
+        required: false,
     },
     createdAt: {type: Date, default: Date.now, required:false},
     updatedAt: {type: Date, default: Date.now, required:false},
@@ -26,14 +26,6 @@ ImageSchema.pre('save', function preSave(next){
     let self = this;
     self.updatedAt = Date.now();
     next();
-});
-// Getter
-ImageSchema.path('total').get(function(num) {
-    return (num / 100).toFixed(2);
-});
-// Setter
-ImageSchema.path('total').set(function(num) {
-    return num * 100;
 });
 
 let PublicationSchema =  new Schema({
@@ -92,6 +84,7 @@ PublicationSchema.path('precio').set(function(num) {
 PublicationSchema.pre('save', function preSave(next){
     let self = this;
     self.updatedAt = Date.now();
+    self.estatus = true;
     let now = Date.now();
     self.duracion = moment(now).add(15, 'days');
     console.log("publications add 15 days to actual date " + self.duracion);
