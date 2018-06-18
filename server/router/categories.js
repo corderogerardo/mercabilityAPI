@@ -11,7 +11,7 @@ let { mongoose } = require('./../db/mongoose');
 let { Category, SubCategory } = require('./../models/categories');
 let { User } = require('./../models/user');
 let { authenticate } = require('./../middleware/authenticate');
-categories.post('/categories', authenticate, (req, res) => {
+categories.post('/categories', (req, res) => {
     let body = _.pick(req.body, ['nombre', 'descripcion']);
     let subcategoria = _.pick(req.body.subcategoria, ['nombre', 'descripcion']);
     console.log(body);
@@ -114,7 +114,7 @@ categories.post('/categories', authenticate, (req, res) => {
 
 });
 
-categories.get('/categories', authenticate, (req, res) => {
+categories.get('/categories', (req, res) => {
     Category.find({
     }).then((categs) => {
         res.send({ categs });
@@ -123,7 +123,7 @@ categories.get('/categories', authenticate, (req, res) => {
     })
 });
 
-categories.get('/categories/:id', authenticate, (req, res) => {
+categories.get('/categories/:id', (req, res) => {
     let id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -143,7 +143,7 @@ categories.get('/categories/:id', authenticate, (req, res) => {
     })
 });
 
-categories.delete('/categories/:id', authenticate, (req, res) => {
+categories.delete('/categories/:id', (req, res) => {
     let id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -164,7 +164,7 @@ categories.delete('/categories/:id', authenticate, (req, res) => {
 
 });
 
-categories.patch('/categories/:id', authenticate, (req, res) => {
+categories.patch('/categories/:id', (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'descripcion']);
     let subcategoria = _.pick(req.body.subcategoria, ['nombre', 'descripcion']);
