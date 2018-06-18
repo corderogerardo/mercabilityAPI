@@ -16,9 +16,18 @@ let { publications } = require('./router/publications');
 let app = express();
 const port = process.env.PORT;
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 // Use Middleware to allow express read and send json data, body parser wraps express.
 app.use(bodyParser.json());
-
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.use(users);
 app.use(todos);
 app.use(categories);

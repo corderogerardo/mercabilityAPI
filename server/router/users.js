@@ -160,7 +160,7 @@ users.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 });
 
-users.post('/users/login', (req, res) => {
+users.post('/users/login', (req, res, next) => {
     let body = _.pick(req.body, ['email', 'password']);
 
     User.findByCredentials(body.email, body.password).then((user) => {
